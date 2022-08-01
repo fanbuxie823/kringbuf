@@ -1,3 +1,3 @@
 # About
 
-An implementation of kfifo under cpp
+An implementation of kfifo with cpp
