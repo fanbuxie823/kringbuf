@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
-
+#include <mutex>
 #ifdef DEBUG_
 #include <mutex>
 #include <iostream>
@@ -60,7 +60,8 @@ class KRingBuff {
   KRingBuff &operator=(const KRingBuff &) = delete; //不可拷贝
 
   uint WriteIn(const DATATYPE *in_buff, uint in_size) {
-	  uint write_len = MIN(GetFreeLen(), in_size);
+  	uint free_len = GetFreeLen();
+	  uint write_len = MIN(free_len, in_size);
 	  uint write_start_pos = write_offset_.load(std::memory_order_acquire) & mask_;
 
 	  // write first part of in_buff, which should put between write_offset and end_pos of buff;
@@ -75,7 +76,8 @@ class KRingBuff {
   }
 
   uint ReadOut(DATATYPE *out_buff, uint out_size) {
-	  uint read_len = MIN(GetUsedLen(), out_size);
+  	uint used_len = GetUsedLen();
+	  uint read_len = MIN(used_len, out_size);
 	  uint read_start_pos = read_offset_.load(std::memory_order_acquire) & mask_;
 
 	  // read first part of in_buff, which should locate between write_offset and end_buff;
